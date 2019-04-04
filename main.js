@@ -1,7 +1,9 @@
 const config = {
     type: Phaser.AUTO, // Which renderer to use
-    width: 800, // Canvas width in pixels
-    height: 600, // Canvas height in pixels
+    width: 171,
+    height: 160,
+    zoom: 3, // Since we're working with 16x16 pixel tiles, let's scale up the canvas by 3x
+    pixelArt: true, // Force the game to scale images up crisply
     parent: "game-container", // ID of the DOM element to add the canvas to
     scene: {
         preload: preload,
@@ -14,25 +16,28 @@ const game = new Phaser.Game(config);
 
 function preload() {
     // Runs once, loads up assets like images and audio
-    this.load.image("repeating-background", "https://www.mikewesthad.com/phaser-3-tilemap-blog-posts/post-1/assets/images/escheresque_dark.png");
+    this.load.image("mario-tiles", "/assets/super-mario-tiles.png");
 }
 
 function create() {
-    // Runs once, after all assets in preload are loaded
-    const { width, height } = this.sys.game.config;
-
-    // Creating a repeating background sprite
-    const bg = this.add.tileSprite(0, 0, width, height, "repeating-background");
-    bg.setOrigin(0, 0);
-
-    // In v3, you can chain many methods, so you can create text and configure it in one "line"
-    this.add
-        .text(width / 2, height / 2, "hello\nphaser 3\ntemplate", {
-            font: "100px monospace",
-            color: "white"
-        })
-        .setOrigin(0.5, 0.5)
-        .setShadow(5, 5, "#5588EE", 0, true, true);
+    // Load a map from a 2D array of tile indices
+    const level = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 2, 3, 0, 0, 0, 1, 2, 3, 0],
+        [0, 5, 6, 7, 0, 0, 0, 5, 6, 7, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 14, 13, 14, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 14, 14, 14, 14, 14, 0, 0, 0, 15],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15],
+        [35, 36, 37, 0, 0, 0, 0, 0, 15, 15, 15],
+        [39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39]
+    ];
+    // When loading from an array, make sure to specify the tileWidth and tileHeight
+    const map = this.make.tilemap({ data: level, tileWidth:16 , tileHeight: 16 });
+    const tiles = map.addTilesetImage("mario-tiles");
+    const layer = map.createStaticLayer(0, tiles, 0, 0);
 }
 
 function update(time, delta) {
